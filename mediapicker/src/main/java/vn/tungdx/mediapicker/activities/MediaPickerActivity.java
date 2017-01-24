@@ -236,33 +236,7 @@ public class MediaPickerActivity extends AppCompatActivity implements
             }
             return true;
         } else if (i == R.id.done) {
-            Fragment activePage;
-            activePage = getActivePage();
-            boolean isPhoto = ((MediaPickerFragment) activePage)
-                    .getMediaType() == MediaItem.PHOTO;
-            if (isPhoto) {
-                if (mMediaOptions.isCropped()
-                        && !mMediaOptions.canSelectMultiPhoto()) {
-                    // get first item in list (pos=0) because can only crop 1 image at same time.
-                    MediaItem mediaItem = new MediaItem(MediaItem.PHOTO,
-                            ((MediaPickerFragment) activePage)
-                                    .getMediaSelectedList().get(0)
-                                    .getUriOrigin());
-                    showCropFragment(mediaItem, mMediaOptions);
-                } else {
-                    returnBackData(((MediaPickerFragment) activePage)
-                            .getMediaSelectedList());
-                }
-            } else {
-                if (mMediaOptions.canSelectMultiVideo()) {
-                    returnBackData(((MediaPickerFragment) activePage)
-                            .getMediaSelectedList());
-                } else {
-                    // only get 1st item regardless of have many.
-                    returnVideo(((MediaPickerFragment) activePage)
-                            .getMediaSelectedList().get(0).getUriOrigin());
-                }
-            }
+            handleDone((MediaPickerFragment) getActivePage());
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -288,7 +262,40 @@ public class MediaPickerActivity extends AppCompatActivity implements
 
     @Override
     public void onHasSelected(List<MediaItem> mediaSelectedList) {
+        MediaPickerFragment mediaPickerFragment = (MediaPickerFragment) getActivePage();
+        if ((MediaItem.PHOTO == mediaPickerFragment.getMediaType()
+                && !mMediaOptions.canSelectMultiPhoto())
+                || (MediaItem.VIDEO == mediaPickerFragment.getMediaType()
+                && !mMediaOptions.canSelectMultiVideo())) {
+            handleDone(mediaPickerFragment);
+            return;
+        }
         showDone();
+    }
+
+    private void handleDone(MediaPickerFragment mediaPickerFragment) {
+        boolean isPhoto = mediaPickerFragment
+                .getMediaType() == MediaItem.PHOTO;
+        if (isPhoto) {
+            if (mMediaOptions.isCropped()
+                    && !mMediaOptions.canSelectMultiPhoto()) {
+                // get first item in list (pos=0) because can only crop 1 image at same time.
+                MediaItem mediaItem = new MediaItem(MediaItem.PHOTO,
+                        mediaPickerFragment
+                                .getMediaSelectedList().get(0)
+                                .getUriOrigin());
+                showCropFragment(mediaItem, mMediaOptions);
+            } else {
+                returnBackData(mediaPickerFragment.getMediaSelectedList());
+            }
+        } else {
+            if (mMediaOptions.canSelectMultiVideo()) {
+                returnBackData(mediaPickerFragment.getMediaSelectedList());
+            } else {
+                // only get 1st item regardless of have many.
+                returnVideo(mediaPickerFragment.getMediaSelectedList().get(0).getUriOrigin());
+            }
+        }
     }
 
     private void showDone() {
@@ -320,10 +327,10 @@ public class MediaPickerActivity extends AppCompatActivity implements
     private void syncIconMenu(int mediaType) {
         switch (mediaType) {
             case MediaItem.PHOTO:
-                mMediaSwitcher.setIcon(R.drawable.ab_picker_video_2);
+                mMediaSwitcher.setIcon(R.drawable.vec_video);
                 break;
             case MediaItem.VIDEO:
-                mMediaSwitcher.setIcon(R.drawable.ab_picker_camera2);
+                mMediaSwitcher.setIcon(R.drawable.vec_photo);
                 break;
             default:
                 break;

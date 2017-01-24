@@ -15,6 +15,7 @@
         android:horizontalSpacing="@dimen/picker_photo_spacing"
         android:listSelector="@android:color/transparent"
         android:numColumns="auto_fit"
+        android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
