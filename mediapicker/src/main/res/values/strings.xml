@@ -4,5 +4,18 @@
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
+    <string name="title_aspect_ratio">Choose Aspect Ratio</string>
+
+    <string-array name="items_aspect_ratio">
+        <item>Origin</item>
+        <item>1 x 1</item>
+        <item>3 x 2</item>
+        <item>3 x 5</item>
+        <item>4 x 3</item>
+        <item>4 x 5</item>
+        <item>4 x 6</item>
+        <item>5 x 7</item>
+        <item>16 x 9</item>
+    </string-array>
 
 </resources>

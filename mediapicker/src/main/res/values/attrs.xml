@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AndroidMediaPicker">
+        <attr name="mediaPickerNormalColor" format="color" />
+        <attr name="mediaPickerPressedColor" format="color" />
+    </declare-styleable>
+</resources>

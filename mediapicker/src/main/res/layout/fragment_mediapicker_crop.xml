@@ -18,12 +18,21 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <Button
+        <!--<Button-->
+            <!--android:id="@id/cancel"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:minWidth="80dp"-->
+            <!--android:text="@string/cancel" />-->
+
+        <ImageView
             android:id="@id/cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="80dp"
-            android:text="@string/cancel" />
+            android:layout_margin="5dp"
+            android:contentDescription="@null"
+            android:padding="5dp"
+            app:srcCompat="@drawable/vec_cancel" />
 
         <ImageView
             android:id="@id/rotate_left"
@@ -35,6 +44,15 @@
             app:srcCompat="@drawable/vec_rotate_left" />
 
         <ImageView
+            android:id="@id/aspect_ratio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:contentDescription="@null"
+            android:padding="5dp"
+            app:srcCompat="@drawable/vec_aspect_ratio" />
+
+        <ImageView
             android:id="@id/rotate_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,12 +61,21 @@
             android:padding="5dp"
             app:srcCompat="@drawable/vec_rotate_right" />
 
-        <Button
+        <ImageView
             android:id="@id/save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="80dp"
-            android:text="@string/save" />
+            android:layout_margin="5dp"
+            android:contentDescription="@null"
+            android:padding="5dp"
+            app:srcCompat="@drawable/vec_save" />
+
+        <!--<Button-->
+            <!--android:id="@id/save"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:minWidth="80dp"-->
+            <!--android:text="@string/save" />-->
     </LinearLayout>
 
 </LinearLayout>

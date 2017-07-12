@@ -3,18 +3,23 @@ package vn.tungdx.mediapicker.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.edmodo.cropper.CropImageView;
 
@@ -39,16 +44,21 @@ import vn.tungdx.mediapicker.utils.Utils;
 public class PhotoCropFragment extends BaseFragment implements OnClickListener {
     private static final String EXTRA_MEDIA_SELECTED = "extra_media_selected";
     private static final String EXTRA_MEDIA_OPTIONS = "extra_media_options";
+    private static final int [] ASPECT_X = new int[] {
+            1, 3, 3, 4, 4, 4, 5, 16
+    };
+    private static final int [] ASPECT_Y = new int[] {
+            1, 2, 5, 3, 5, 6, 7, 9
+    };
 
     private CropListener mCropListener;
     private MediaOptions mMediaOptions;
     private MediaItem mMediaItemSelected;
     private CropImageView mCropImageView;
-    private View mRotateLeft, mRotateRight;
-    private View mCancel;
-    private View mSave;
     private ProgressDialog mDialog;
     private SaveFileCroppedTask mSaveFileCroppedTask;
+    private int imageWidth;
+    private int imageHeight;
 
     public static PhotoCropFragment newInstance(MediaItem item,
                                                  MediaOptions options) {
@@ -99,15 +109,11 @@ public class PhotoCropFragment extends BaseFragment implements OnClickListener {
 
     private void init(View view) {
         mCropImageView = (CropImageView) view.findViewById(R.id.crop);
-        mRotateLeft = view.findViewById(R.id.rotate_left);
-        mRotateRight = view.findViewById(R.id.rotate_right);
-        mCancel = view.findViewById(R.id.cancel);
-        mSave = view.findViewById(R.id.save);
-
-        mRotateLeft.setOnClickListener(this);
-        mRotateRight.setOnClickListener(this);
-        mSave.setOnClickListener(this);
-        mCancel.setOnClickListener(this);
+        view.findViewById(R.id.rotate_left).setOnClickListener(this);
+        view.findViewById(R.id.rotate_right).setOnClickListener(this);
+        view.findViewById(R.id.cancel).setOnClickListener(this);
+        view.findViewById(R.id.save).setOnClickListener(this);
+        view.findViewById(R.id.aspect_ratio).setOnClickListener(this);
     }
 
     @Override
@@ -132,6 +138,8 @@ public class PhotoCropFragment extends BaseFragment implements OnClickListener {
         int width = getResources().getDisplayMetrics().widthPixels / 3 * 2;
         Bitmap bitmap = MediaUtils.decodeSampledBitmapFromFile(filePath, width,
                 width);
+        imageWidth = bitmap.getWidth();
+        imageHeight = bitmap.getHeight();
         try {
             ExifInterface exif = new ExifInterface(filePath);
             mCropImageView.setImageBitmap(bitmap, exif);
@@ -161,10 +169,36 @@ public class PhotoCropFragment extends BaseFragment implements OnClickListener {
             getFragmentManager().popBackStack();
 
         } else if (i == R.id.save) {
-            mSaveFileCroppedTask = new SaveFileCroppedTask(getActivity());
-            mSaveFileCroppedTask.execute();
+            Bitmap croppedImage = mCropImageView.getCroppedImage();
+            if (null != croppedImage) {
+                mSaveFileCroppedTask = new SaveFileCroppedTask(getActivity(), croppedImage);
+                mSaveFileCroppedTask.execute();
+            }
 
-        } else {
+        } else if (i == R.id.aspect_ratio) {
+            LinearLayout title = (LinearLayout) LayoutInflater.from(getContext()).inflate(
+                    R.layout.title_alert, null, false);
+            ((TextView) title.findViewById(android.R.id.text1)).setText(R.string.title_aspect_ratio);
+            new AlertDialog.Builder(new ContextThemeWrapper(getContext(), R.style.MediaPickerAlertDialog))
+                    .setCustomTitle(title)
+                    .setItems(R.array.items_aspect_ratio,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    if (0 == which) {
+                                        mCropImageView.setFixedAspectRatio(false);
+                                        mCropImageView.setAspectRatio(imageWidth, imageHeight);
+                                    } else {
+                                        mCropImageView.setFixedAspectRatio(true);
+                                        mCropImageView.setAspectRatio(
+                                                ASPECT_X[which - 1], ASPECT_Y[which - 1]
+                                        );
+                                    }
+                                }
+                            })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
         }
     }
 
@@ -191,9 +225,11 @@ public class PhotoCropFragment extends BaseFragment implements OnClickListener {
 
     private class SaveFileCroppedTask extends AsyncTask<Void, Void, Uri> {
         private WeakReference<Activity> reference;
+        private Bitmap croppedImage;
 
-        public SaveFileCroppedTask(Activity activity) {
+        public SaveFileCroppedTask(Activity activity, Bitmap croppedImage) {
             reference = new WeakReference<Activity>(activity);
+            this.croppedImage = croppedImage;
         }
 
         @Override
@@ -212,11 +248,10 @@ public class PhotoCropFragment extends BaseFragment implements OnClickListener {
             // must try-catch, maybe getCroppedImage() method crash because not
             // set bitmap in mCropImageView
             try {
-                Bitmap bitmap = mCropImageView.getCroppedImage();
-                uri = saveBitmapCropped(bitmap);
-                if (bitmap != null) {
-                    bitmap.recycle();
-                    bitmap = null;
+                uri = saveBitmapCropped(croppedImage);
+                if (croppedImage != null) {
+                    croppedImage.recycle();
+                    croppedImage = null;
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -250,9 +285,5 @@ public class PhotoCropFragment extends BaseFragment implements OnClickListener {
         super.onDestroyView();
         mCropImageView = null;
         mDialog = null;
-        mSave = null;
-        mCancel = null;
-        mRotateLeft = null;
-        mRotateRight = null;
     }
 }

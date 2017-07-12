@@ -6,6 +6,11 @@
         <item name="actionMenuTextColor">@color/picker_color</item>
         <item name="android:textSize">14sp</item>
         <item name="android:divider">@android:color/white</item>
+        <item name="alertDialogStyle">@style/MediaPickerAlertDialog</item>
+    </style>
+
+    <style name="MediaPickerAlertDialog" parent="AlertDialog.AppCompat">
+        <item name="listItemLayout">@layout/list_item_alert</item>
     </style>
 
 </resources>
