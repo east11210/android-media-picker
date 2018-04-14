@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "vn.tungdx.mediapickersample"
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 1
         versionName "1.0"
@@ -21,7 +21,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':mediapicker')
-    compile 'com.android.support:appcompat-v7:' + SUPPORT_LIBRARY_VERSION
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':mediapicker')
+    implementation 'com.android.support:appcompat-v7:' + SUPPORT_LIBRARY_VERSION
 }
